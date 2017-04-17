@@ -65,6 +65,9 @@ public class MySQLDatabase {
 	public void disconnect() {
 		try {
 			connection.close();
+			connection = null;
+			statement = null;
+			
 			connected = false;
 		}
 		catch (SQLException e) {
