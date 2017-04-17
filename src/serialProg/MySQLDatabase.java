@@ -44,20 +44,15 @@ public class MySQLDatabase {
 	}
 
 
-	public boolean connect() {
+	public boolean connect() throws ClassNotFoundException, SQLException {
 		if (!connected) {
-			try {
-				Class.forName("com.mysql.jdbc.Driver");
-				
-				connection = DriverManager.getConnection( String.format( "jdbc:mysql://%s:%d/%s", url, port, db_name) , db_username, db_password );
-				
-				statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE );
-				
-				connected = true;
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
+			Class.forName("com.mysql.jdbc.Driver");
+			
+			connection = DriverManager.getConnection( String.format( "jdbc:mysql://%s:%d/%s", url, port, db_name) , db_username, db_password );
+			
+			statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE );
+			
+			connected = true;
 		}
 		return connected;
 	}
