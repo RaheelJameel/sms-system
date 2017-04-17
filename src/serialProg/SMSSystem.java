@@ -1,6 +1,7 @@
 package serialProg;
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import gnu.io.NoSuchPortException;
@@ -9,7 +10,7 @@ import gnu.io.UnsupportedCommOperationException;
 
 public class SMSSystem {
 
-	public static void main(String[] args) throws FileNotFoundException, IOException, NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
+	public static void main(String[] args) throws FileNotFoundException, IOException, NoSuchPortException, PortInUseException, UnsupportedCommOperationException, ClassNotFoundException, SQLException {
 		
 		String selectedCOMPort, host, databaseName, username, password, devHeadNumber;
 		int port, isDevHead;
