@@ -569,7 +569,7 @@ public class Communicator implements SerialPortEventListener {
                     	
                     	//Test Ones
                     	//The proper implementation would be to call this when process is idle
-                    	Thread.sleep(300);
+                    	//Thread.sleep(300);
                     	writeData( String.format("AT+CMGR=%d,1", msgCounter+i), CR_ASCII);
                     	autoMsgRetrieve = 1;
                 	}
