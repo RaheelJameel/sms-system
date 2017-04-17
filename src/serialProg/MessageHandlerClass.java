@@ -113,7 +113,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				catch (ClassNotFoundException | SQLException e2) {
 					e2.printStackTrace();
-					return;
+					System.exit(0);
 				}
 				statement = database.getStatement();
 				
