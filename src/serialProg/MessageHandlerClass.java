@@ -489,8 +489,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										comments = resultSet.getString(5);
 										complaintTime = resultSet.getString(6);
 										memberReg = resultSet.getInt(7);
-										firstName = resultSet.getString(9);
-										lastName = resultSet.getString(0);
+										firstName = resultSet.getString(8);
+										lastName = resultSet.getString(9);
 										batch = resultSet.getInt(10);
 										memberNumber = resultSet.getString(11);
 										pending = resultSet.getInt(12);
