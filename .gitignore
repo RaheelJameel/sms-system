@@ -1,0 +1,3 @@
+# Files Containg Sensitive Running Data
+config.cfg
+file*.txt
