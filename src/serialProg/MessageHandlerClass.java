@@ -43,7 +43,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			"1",
 			"2"};
 
-	public MessageHandlerClass( MessageClass messageClass, String host, int port, String dbName, String username, String password ) {
+	public MessageHandlerClass( MessageClass messageClass, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
 		isDevHead = false;
 		devHeadPhoneNumber = null;
 		
