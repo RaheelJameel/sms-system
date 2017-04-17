@@ -50,8 +50,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		this.messageClass = messageClass;
 		
 		database = new MySQLDatabase(host,port,dbName,username,password);
-		database.connect();
-		statement = database.getStatement();
 	}
 	
 	public void close() {
@@ -108,6 +106,16 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			if ( messageUnit!=null ){
 				System.out.println(Thread.currentThread().getName() + " Number: " + messageUnit.msgNumber);
 				System.out.println(Thread.currentThread().getName() + " Message: " + messageUnit.msgBody);
+				
+				// Starting Connection to Database
+				try {
+					database.connect();
+				}
+				catch (ClassNotFoundException | SQLException e2) {
+					e2.printStackTrace();
+					return;
+				}
+				statement = database.getStatement();
 				
 				try {
 					currentTime = getCurrentMySQLTime();
@@ -793,6 +801,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					sendSMS( messageUnit.msgNumber, studentMessage );
 				}
 				
+				// Closing Connection to Database
+				database.disconnect();
+				statement = null;
 			}
 	    }
 	}
