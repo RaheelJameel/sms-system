@@ -480,7 +480,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 									complaint_id = -1;
 								}
 								if ( complaint_id>0 ) {
-									resultSet = statement.executeQuery( String.format( "SELECT `complaint`.status,`complaint`.hostel_number,`complaint`.room,`complaint`.phone_number,`complaint`.comment,`sms_received`.timestamp, `member`.reg_number, `member`.first_name, `member`.last_name, `member`.batch,`member`.phone_number, `member`.pending FROM `complaint` JOIN `sms_received` JOIN `member` WHERE `complaint`.sms_id=`sms_received`.sms_id AND `complaint`.member_reg_number=`member`.reg_number AND `complaint`.status<2 AND `complaint`.complaint_id=%d;", complaint_id ) );
+									resultSet = statement.executeQuery( String.format( "SELECT `complaint`.status,`complaint`.hostel_number,`complaint`.room,`complaint`.phone_number,`complaint`.comment,`sms_received`.timestamp, `member`.reg_number, `member`.first_name, `member`.last_name, `member`.batch,`member`.phone_number,`member`.pending FROM `complaint` JOIN `sms_received` JOIN `member` WHERE `complaint`.sms_id=`sms_received`.sms_id AND `complaint`.member_reg_number=`member`.reg_number AND `complaint`.status<2 AND `complaint`.complaint_id=%d;", complaint_id ) );
 									if ( resultSet.next() ) {
 										complaint_status = resultSet.getInt(1);
 										hostel = resultSet.getInt(2);
