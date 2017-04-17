@@ -4,12 +4,13 @@ import java.sql.*;
 
 public class MySQLDatabase {
 	
-	private boolean connected;
 	private String url;
 	private int port;
 	private String db_name;
 	private String db_username;
 	private String db_password;
+	
+	private boolean connected;
 	private Connection connection;
 	private Statement statement;
 
