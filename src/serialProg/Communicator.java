@@ -81,9 +81,6 @@ public class Communicator implements SerialPortEventListener {
     //Counter for unfetched messages in GSM Module
     int unRead = 0;
     
-    //Var to store if Program requested for a message from GSM Module or the user did
-    int autoMsgRetrieve = 0;
-    
     //String to store header for previous and new messages
     String prevMsgHead = "", newMsgHead = "", msgBody = "";
     
@@ -571,8 +568,6 @@ public class Communicator implements SerialPortEventListener {
                     	//The proper implementation would be to call this when process is idle
                     	//Thread.sleep(300);
                     	writeData( String.format("AT+CMGR=%d,0", msgCounter+i), CR_ASCII);
-                    	
-                    	autoMsgRetrieve = 1;
                 	}
             		System.out.println( String.format( "unRead: %d", unRead) );
                     writer4.println( String.format( "unRead: %d", unRead) );
@@ -586,12 +581,10 @@ public class Communicator implements SerialPortEventListener {
                 else if ( logText.startsWith("+CMGR:") )
                 {
                 	System.out.println( "CCCCC" );
-                	if ( autoMsgRetrieve == 1 )
-                	{
-                    	++msgCounter;
-                    	--unRead;
-                    	autoMsgRetrieve = 0;
-                	}
+                	
+                    ++msgCounter;
+                    --unRead;
+                    
                 	if ( msgCounter > 49)
                 	{
                 		msgCounter = 0;
