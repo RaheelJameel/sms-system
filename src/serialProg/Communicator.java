@@ -104,8 +104,8 @@ public class Communicator implements SerialPortEventListener {
 			}
 			
 			if ( unRead>0 ) {
-				System.out.println( String.format("%s Messages unRead:", Thread.currentThread().getName(), unRead) );
-                writer4.println( String.format("%s Messages unRead:", Thread.currentThread().getName(), unRead) );
+				System.out.println( String.format("%s Messages unRead: %d", Thread.currentThread().getName(), unRead) );
+                writer4.println( String.format("%s Messages unRead: %d", Thread.currentThread().getName(), unRead) );
 				
 				writeData( String.format("AT+CMGR=%d,0", msgCounter+1), CR_ASCII);
 				
