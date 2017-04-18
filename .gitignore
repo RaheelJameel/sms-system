@@ -1,3 +1,6 @@
 # Files Containg Sensitive Running Data
 config.cfg
 file*.txt
+
+# Files of Java
+.bin/
