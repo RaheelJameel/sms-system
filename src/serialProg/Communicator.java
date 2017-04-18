@@ -570,7 +570,7 @@ public class Communicator implements SerialPortEventListener {
                     	//Test Ones
                     	//The proper implementation would be to call this when process is idle
                     	//Thread.sleep(300);
-                    	writeData( String.format("AT+CMGR=%d,1", msgCounter+i), CR_ASCII);
+                    	writeData( String.format("AT+CMGR=%d,0", msgCounter+i), CR_ASCII);
                     	autoMsgRetrieve = 1;
                 	}
             		System.out.println( String.format( "unRead: %d", unRead) );
@@ -615,9 +615,15 @@ public class Communicator implements SerialPortEventListener {
             		
             		writer5.println( newMsgHead );
             		writer5.println( msgBody );
-            		writer5.println();
             		
-            		messageClass.setData( new MessageUnit( inputNumber, msgBody ) );
+            		if ( newMsgHead.contains("REC UNREAD") ) {
+            			messageClass.setData( new MessageUnit( inputNumber, msgBody ) );
+            		}
+            		else {
+            			System.out.println("Repeat SMS");
+                		writer5.println("Repeat SMS");
+            		}
+            		writer5.println();
                 }
                 
                 
