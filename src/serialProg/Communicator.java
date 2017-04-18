@@ -571,6 +571,7 @@ public class Communicator implements SerialPortEventListener {
                     	//The proper implementation would be to call this when process is idle
                     	//Thread.sleep(300);
                     	writeData( String.format("AT+CMGR=%d,0", msgCounter+i), CR_ASCII);
+                    	
                     	autoMsgRetrieve = 1;
                 	}
             		System.out.println( String.format( "unRead: %d", unRead) );
@@ -594,7 +595,8 @@ public class Communicator implements SerialPortEventListener {
                 	if ( msgCounter > 49)
                 	{
                 		msgCounter = 0;
-                		writeData( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII);
+                		sendDelayCommand( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII, 500);
+                		sendDelayCommand( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII, 1000);
                 	}
                 	
                 	newMsgHead = logText.substring(0, logText.indexOf( (char)CR_ASCII ) );
@@ -964,6 +966,19 @@ public class Communicator implements SerialPortEventListener {
     public void sendCommand(String inputString)
     {
     	writeData(inputString, CR_ASCII);
+    }
+    
+    public void sendDelayCommand(String inputString, int endChar, int delay)
+    {
+    	try
+    	{
+			Thread.sleep(delay);
+		}
+    	catch (InterruptedException e1)
+    	{
+			e1.printStackTrace();
+		}
+    	writeData(inputString, endChar);
     }
     
     public void sendSMS(String phoneNumber1, String msg1)
