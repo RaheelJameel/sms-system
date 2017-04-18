@@ -90,8 +90,8 @@ public class Communicator implements SerialPortEventListener {
     private class MessageFetch implements Runnable {
 
 		public void run() {
-			System.out.println( "New MessageFetchThread Started" );
-            writer4.println( "New MessageFetchThread Started" );
+			System.out.println( Thread.currentThread().getName() +  " New MessageFetchThread Started" );
+            writer4.println( Thread.currentThread().getName() +  " New MessageFetchThread Started" );
             
 			// Wait 15 seconds before sending command
 			try
@@ -104,8 +104,8 @@ public class Communicator implements SerialPortEventListener {
 			}
 			
 			if ( unRead>0 ) {
-				System.out.println( String.format("Messages left unRead:", unRead) );
-                writer4.println( String.format("Messages left unRead:", unRead) );
+				System.out.println( String.format("%s Messages unRead:", Thread.currentThread().getName(), unRead) );
+                writer4.println( String.format("%s Messages unRead:", Thread.currentThread().getName(), unRead) );
 				
 				writeData( String.format("AT+CMGR=%d,0", msgCounter+1), CR_ASCII);
 				
@@ -114,8 +114,8 @@ public class Communicator implements SerialPortEventListener {
 				nextThread.start();
 			}
 			else {
-				System.out.println( "Yay no need for MessageFetchThread" );
-	            writer4.println( "Yay no need forMessageFetchThread" );
+				System.out.println( Thread.currentThread().getName() +  "Yay no need for MessageFetchThread" );
+	            writer4.println( Thread.currentThread().getName() +  "Yay no need for MessageFetchThread" );
 			}
 		}
     	
