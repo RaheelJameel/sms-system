@@ -87,6 +87,41 @@ public class Communicator implements SerialPortEventListener {
     // Class to store the sms received
     MessageClass messageClass;
     
+    private class MessageFetch implements Runnable {
+
+		public void run() {
+			System.out.println( "New MessageFetchThread Started" );
+            writer4.println( "New MessageFetchThread Started" );
+            
+			// Wait 15 seconds before sending command
+			try
+	    	{
+				Thread.sleep(15000);
+			}
+	    	catch (InterruptedException e1)
+	    	{
+				e1.printStackTrace();
+			}
+			
+			if ( unRead>0 ) {
+				System.out.println( String.format("Messages left unRead:", unRead) );
+                writer4.println( String.format("Messages left unRead:", unRead) );
+				
+				writeData( String.format("AT+CMGR=%d,0", msgCounter+1), CR_ASCII);
+				
+				// Start this process again in a new thread to ensure that there are no unread messages
+				Thread nextThread = new Thread( new MessageFetch() );
+				nextThread.start();
+			}
+			else {
+				System.out.println( "Yay no need for MessageFetchThread" );
+	            writer4.println( "Yay no need forMessageFetchThread" );
+			}
+		}
+    	
+    }
+    
+    
     public Communicator( MessageClass messageClass, MessageHandlerAbstract handler, String selectedCOMPort ) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
 		super();
 		this.messageClass = messageClass;
@@ -568,6 +603,9 @@ public class Communicator implements SerialPortEventListener {
                     	//The proper implementation would be to call this when process is idle
                     	//Thread.sleep(300);
                     	writeData( String.format("AT+CMGR=%d,0", msgCounter+i), CR_ASCII);
+                    	
+                    	Thread messageFetchThread = new Thread( new MessageFetch() );
+                    	messageFetchThread.start();
                 	}
             		System.out.println( String.format( "unRead: %d", unRead) );
                     writer4.println( String.format( "unRead: %d", unRead) );
