@@ -114,8 +114,8 @@ public class Communicator implements SerialPortEventListener {
 				nextThread.start();
 			}
 			else {
-				System.out.println( Thread.currentThread().getName() +  "Yay no need for MessageFetchThread" );
-	            writer4.println( Thread.currentThread().getName() +  "Yay no need for MessageFetchThread" );
+				System.out.println( Thread.currentThread().getName() +  " Yay no need for MessageFetchThread" );
+	            writer4.println( Thread.currentThread().getName() +  " Yay no need for MessageFetchThread" );
 			}
 		}
     	
