@@ -45,15 +45,15 @@ public class MySQLDatabase {
 
 
 	public boolean connect() throws ClassNotFoundException, SQLException {
-		if (!connected) {
-			Class.forName("com.mysql.jdbc.Driver");
+		Class.forName("com.mysql.jdbc.Driver");
 			
-			connection = DriverManager.getConnection( String.format( "jdbc:mysql://%s:%d/%s", url, port, db_name) , db_username, db_password );
+		connection = DriverManager.getConnection( String.format( "jdbc:mysql://%s:%d/%s", url, port, db_name) , db_username, db_password );
 			
-			statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE );
+		statement = connection.createStatement( ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE );
+		
+		System.out.println("Database Connected");
 			
-			connected = true;
-		}
+		connected = true;
 		return connected;
 	}
 	
@@ -64,10 +64,13 @@ public class MySQLDatabase {
 				connection = null;
 				statement = null;
 				
+				System.out.println("Database Disconnected");
+				
 				connected = false;
 			}
 			catch (SQLException e) {
 				e.printStackTrace();
+				System.out.println("ERROR: Database Not Disconnected");
 			}
 		}
 	}
