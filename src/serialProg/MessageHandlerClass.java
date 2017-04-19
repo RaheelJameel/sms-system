@@ -26,8 +26,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private final String studentIncorrect = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 	
 	private final String [] memberCommandMsg = new String[]{
-			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you...",
-			"...\"done [complaint#]\"\nto mark complaint as resolved"};
+			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you\n...",
+			"...\n\"done [complaint#]\"\nto mark complaint as resolved"};
 
 	public MessageHandlerClass( MessageClass messageClass, BlockingQueue<Integer> transferQueue, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
 		isDevHead = false;
