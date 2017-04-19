@@ -23,7 +23,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private String devHeadPhoneNumber;
 	
 	// Information Messages
-	private final String studentIncorrect = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+	private final String studentIncorrectMsg = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+	
+	private final String memberIncorrectMsg = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
 	
 	private final String [] memberCommandMsg = new String[]{
 			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you\n...",
@@ -164,7 +166,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				else if ( msgTemp.contentEquals("command") || msgTemp.contentEquals("commands") ) {
 					try {
-						studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+						studentMessage = studentIncorrectMsg;
 						resultSet = statement.executeQuery( String.format("SELECT reg_number FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
 							sendSplitSMS(messageUnit.msgNumber, memberCommandMsg);
@@ -317,11 +319,11 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						complaint_id = -1;
 					}
 					try {
-						studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+						studentMessage = studentIncorrectMsg;
 						resultSet = statement.executeQuery( String.format("SELECT reg_number FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
 							memberReg = resultSet.getInt(1);
-							studentMessage = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
+							studentMessage = memberIncorrectMsg;
 							if ( complaint_id>0 || msgTemp2.contentEquals("all") ) {
 								if ( msgTemp2.contentEquals("all") ) {
 									studentMessage = "NETRONiX Ongoing Complaints:\n";
@@ -369,13 +371,13 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					catch (NumberFormatException e) {
 						complaint_id = -1;
 					}
-					studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+					studentMessage = studentIncorrectMsg;
 					try {
 						resultSet = statement.executeQuery( String.format("SELECT reg_number,pending FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
 							memberReg = resultSet.getInt(1);
 							pending = resultSet.getInt(2);
-							studentMessage = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
+							studentMessage = memberIncorrectMsg;
 							if ( complaint_id>0 ) {
 								studentMessage = "Invalid Complaint Number\n\n\nNETRONiX";
 								resultSet = statement.executeQuery( String.format( "SELECT `complaint`.status,`complaint`.hostel_number,`complaint`.room,`complaint`.phone_number,`complaint`.comment,`sms_received`.timestamp FROM `complaint` JOIN `sms_received` WHERE `complaint`.sms_id=`sms_received`.sms_id AND `complaint`.status<2 AND `complaint`.member_reg_number=%d AND `complaint`.complaint_id=%d;", memberReg, complaint_id ) );
@@ -415,10 +417,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				else if ( msgTemp.startsWith("admin") ) {
 					String msgTemp2 = msgTemp.substring( msgTemp.indexOf("admin")+5 ).trim();
 					try {
-						studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+						studentMessage = studentIncorrectMsg;
 						resultSet = statement.executeQuery( String.format("SELECT * FROM `member` NATURAL JOIN `hostel_head` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
-							studentMessage = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
+							studentMessage = memberIncorrectMsg;
 							if ( msgTemp2.startsWith("view") ) {
 								String msgTemp3 = msgTemp2.substring( msgTemp2.indexOf("view")+4 ).trim();
 								try {
@@ -815,7 +817,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 				}
 				else {
-					studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+					studentMessage = studentIncorrectMsg;
 					sendSMS( messageUnit.msgNumber, studentMessage );
 				}
 				
