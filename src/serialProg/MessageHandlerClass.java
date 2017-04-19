@@ -113,6 +113,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				catch (ClassNotFoundException | SQLException e2) {
 					e2.printStackTrace();
+					System.out.println("ERROR-------1");
 					System.exit(0);
 				}
 				statement = database.getStatement();
@@ -126,6 +127,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				catch (SQLException e) {
 					e.printStackTrace();
+					System.out.println("ERROR-------2");
 					return;
 				}
 				complaintTime = currentTime;
@@ -176,6 +178,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------3");
 					}
 					return;
 				}
@@ -207,6 +210,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------4");
 					}
 					return;
 				}
@@ -298,6 +302,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------5");
 					}
 					return;
 				}
@@ -349,6 +354,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------6");
 					}
 					return;
 				}
@@ -398,6 +404,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------7");
 					}
 					return;
 				}
@@ -612,6 +619,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------8");
 					}
 					return;
 				}
@@ -740,6 +748,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e1) {
 						e1.printStackTrace();
+						System.out.println("ERROR-------9");
 						return;
 					}
 					
@@ -778,6 +787,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
+						System.out.println("ERROR-------10");
 						return;
 					}
 					
