@@ -3,12 +3,15 @@ package serialProg;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private MessageClass messageClass;
+	private BlockingQueue<Integer> transferQueue;
 	private String currentTime;
 	
 	// Database Vars
@@ -43,11 +46,12 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			"1",
 			"2"};
 
-	public MessageHandlerClass( MessageClass messageClass, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
+	public MessageHandlerClass( MessageClass messageClass, BlockingQueue<Integer> transferQueue, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
 		isDevHead = false;
 		devHeadPhoneNumber = null;
 		
 		this.messageClass = messageClass;
+		this.transferQueue = transferQueue;
 		
 		database = new MySQLDatabase(host,port,dbName,username,password);
 	}
@@ -844,17 +848,17 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	    }
 	}
 	
-	public synchronized void sendSMS(String sendNumber, String sendMsg) {
+	private synchronized void sendSMS(String sendNumber, String sendMsg) {
 		try {
 			while (sendMsg.length()>160) {
 				String tempMessage = sendMsg.substring(0, 157) + "...";
-				gsmCom.sendSMS( sendNumber, tempMessage );
+				sendConfirmSMS( sendNumber, tempMessage );
 				currentTime = getCurrentMySQLTime();
 				statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,tempMessage,currentTime) );
 				
 				sendMsg = "..."+sendMsg.substring(157);
 			}
-			gsmCom.sendSMS( sendNumber, sendMsg );
+			sendConfirmSMS( sendNumber, sendMsg );
 			currentTime = getCurrentMySQLTime();
 			statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,sendMsg,currentTime) );
 		}
@@ -863,10 +867,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		}
 	}
 	
-	public synchronized void sendSplitSMS(String sendNumber, String [] msgList) {
+	private synchronized void sendSplitSMS(String sendNumber, String [] msgList) {
 		try {
 			for (String sendMsg: msgList) {
-				gsmCom.sendSMS( sendNumber, sendMsg );
+				sendConfirmSMS( sendNumber, sendMsg );
 				currentTime = getCurrentMySQLTime();
 				statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,sendMsg,currentTime) );
 			}
@@ -874,6 +878,24 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
+		gsmCom.sendSMS( sendNumber, sendMsg );
+		try {
+			while ( transferQueue.poll(10,TimeUnit.SECONDS) == null ) {
+				gsmCom.sendChar((char)26);
+				if ( transferQueue.poll(5,TimeUnit.SECONDS) != null ) {
+					break;
+				}
+				System.out.println("SMS Failed - Resending");
+				gsmCom.sendSMS( sendNumber, sendMsg );
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			
+		}
+		System.out.println("SMS Sending Successful");
 	}
 	
 	// Code from Stackoverflow user icza

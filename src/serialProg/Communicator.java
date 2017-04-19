@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.TooManyListenersException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Communicator implements SerialPortEventListener {
@@ -87,6 +88,9 @@ public class Communicator implements SerialPortEventListener {
     // Class to store the sms received
     MessageClass messageClass;
     
+    // BlockingQueue to send data between threads
+	private BlockingQueue<Integer> transferQueue;
+    
     private class MessageFetch implements Runnable {
 
 		public void run() {
@@ -122,9 +126,10 @@ public class Communicator implements SerialPortEventListener {
     }
     
     
-    public Communicator( MessageClass messageClass, MessageHandlerAbstract handler, String selectedCOMPort ) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
+    public Communicator( MessageClass messageClass, BlockingQueue<Integer> transferQueue, MessageHandlerAbstract handler, String selectedCOMPort ) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException {
 		super();
 		this.messageClass = messageClass;
+		this.transferQueue = transferQueue;
 		handler.setCommunicator(this);
 		
 		this.selectedCOMPort = selectedCOMPort;
@@ -591,6 +596,10 @@ public class Communicator implements SerialPortEventListener {
             			}
                 	}
                 	*/
+                	if ( logText.contains("+CMGS:") ) {
+                		transferQueue.offer(1);
+                	}
+                	
                 	
                 	int i=0;
                 	while ( logText.contains("+CMTI:") )
@@ -658,6 +667,9 @@ public class Communicator implements SerialPortEventListener {
             		}
             		writer5.println();
                 }
+                else if ( logText.contains("+CMGS:") ) {
+            		transferQueue.offer(1);
+            	}
                 
                 
                 
@@ -952,6 +964,15 @@ public class Communicator implements SerialPortEventListener {
         }
     }
     */
+    
+    public void sendChar(char endChar) {
+    	try {
+			output.write(endChar);
+	        output.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
     
     
     

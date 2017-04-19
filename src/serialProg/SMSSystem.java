@@ -3,6 +3,8 @@ package serialProg;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.Scanner;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -45,12 +47,15 @@ public class SMSSystem {
 		inputParmsReader.close();
 		inputParmsReader = null;
 		
-		
 		Scanner scanner = new Scanner(System.in);
+		
+		
 		
 		MessageClass messageClass = new MessageClass();
 		
-		MessageHandlerClass listener = new MessageHandlerClass( messageClass, host, port, databaseName, username, password );
+		BlockingQueue<Integer> transferQueue = new LinkedBlockingQueue<Integer>();
+		
+		MessageHandlerClass listener = new MessageHandlerClass( messageClass, transferQueue, host, port, databaseName, username, password );
 		
 		if ( isDevHead==1 ) {
 			listener.enableDevHead( devHeadNumber );
@@ -58,10 +63,11 @@ public class SMSSystem {
 		
 		messageClass.addDataEventListener(listener);
 		
-		
-		Communicator gsmCom = new Communicator( messageClass, listener, selectedCOMPort );
+		Communicator gsmCom = new Communicator( messageClass, transferQueue, listener, selectedCOMPort );
 		
         
+		
+		
         String inputString, phoneNumber, msg;
         
         boolean var1 = true;
