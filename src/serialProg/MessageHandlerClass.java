@@ -29,23 +29,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you...",
 			"...\"done [complaint#]\"\nto mark complaint as resolved"};
 
-	private final String [] headCommandMsg = new String[]{
-			"Hostel Head Commands:\n\n\"admin view all\"\nto view all complaints\n\n\"admin view hostel [hostel#]\"\nto view all complaints of a specific hostel\n...",
-			"...\n\"admin view [complaint#]\"\nto view details of a complaint\n\n\"admin cancel [complaint#]\"\nto cancel complaint\n...",
-			"...\n\"admin done [complaint#]\"\nto mark complaint as resolved\n\n\"admin complete [complaint#]\"\nto mark complaint as complete"};
-
-	private final String [] combinedCommandMsg = new String[]{
-			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you\n...",
-			"...\n\"done [complaint#]\"\nto mark complaint as resolved\n\n\nHostel Head Commands:\n\n\"admin view all\"\nto view all complaints\n...",
-			"...\n\"admin view hostel [hostel#]\"\nto view all complaints of a specific hostel\n\n\"admin view [complaint#]\"\nto view details of a complaint\n...",
-			"...\n\"admin cancel [complaint#]\"\nto cancel complaint\n\n\"admin done [complaint#]\"\nto mark complaint as resolved\n...",
-			"...\n\"admin complete [complaint#]\"\nto mark complaint as complete"};
-	
-
-	private final String [] aaaa = new String[]{
-			"1",
-			"2"};
-
 	public MessageHandlerClass( MessageClass messageClass, BlockingQueue<Integer> transferQueue, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
 		isDevHead = false;
 		devHeadPhoneNumber = null;
@@ -184,14 +167,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						studentMessage = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 						resultSet = statement.executeQuery( String.format("SELECT reg_number FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
-							memberReg = resultSet.getInt(1);
-							resultSet = statement.executeQuery( String.format("SELECT * FROM `hostel_head` WHERE reg_number=\'%d\';",memberReg) );
-							if ( resultSet.next() ) {
-								sendSplitSMS(messageUnit.msgNumber, combinedCommandMsg);
-							}
-							else {
-								sendSplitSMS(messageUnit.msgNumber, memberCommandMsg);
-							}
+							sendSplitSMS(messageUnit.msgNumber, memberCommandMsg);
 							databaseDisconnect();
 							return;
 						}
