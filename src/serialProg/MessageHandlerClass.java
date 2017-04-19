@@ -65,6 +65,25 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		isDevHead = false;
 		devHeadPhoneNumber = null;
 	}
+	
+	private void databaseConnect() {
+		// Starting Connection to Database
+		try {
+			database.connect();
+		}
+		catch (ClassNotFoundException | SQLException e2) {
+			e2.printStackTrace();
+			System.out.println("ERROR-------1");
+			System.exit(0);
+		}
+		statement = database.getStatement();
+	}
+	
+	private void databaseDisconnect() {
+		// Closing Connection to Database
+		database.disconnect();
+		statement = null;
+	}
 
 	public synchronized void eventReceived( MessageEvent event ) {
 		
@@ -108,15 +127,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				System.out.println(Thread.currentThread().getName() + " Message: " + messageUnit.msgBody);
 				
 				// Starting Connection to Database
-				try {
-					database.connect();
-				}
-				catch (ClassNotFoundException | SQLException e2) {
-					e2.printStackTrace();
-					System.out.println("ERROR-------1");
-					System.exit(0);
-				}
-				statement = database.getStatement();
+				databaseConnect();
 				
 				try {
 					currentTime = getCurrentMySQLTime();
@@ -128,6 +139,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				catch (SQLException e) {
 					e.printStackTrace();
 					System.out.println("ERROR-------2");
+					databaseDisconnect();
 					return;
 				}
 				complaintTime = currentTime;
@@ -135,6 +147,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				System.out.println(Thread.currentThread().getName() + " Message ID: " + sms_id);
 				
 				if ( messageUnit.msgNumber.length()<10 ) {
+					databaseDisconnect();
 					return;
 				}
 				else {
@@ -142,6 +155,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						Double.parseDouble( messageUnit.msgNumber.substring(1) );
 					}
 					catch (NumberFormatException e) {
+						databaseDisconnect();
 						return;
 					}
 				}
@@ -152,11 +166,13 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				if ( msgTemp.contentEquals("help") || msgTemp.contentEquals("info") || msgTemp.contentEquals("information") )  {
 					studentMessage = "NETRONiX Complaint System\n\nReply\n\"info\" or \"help\" to see this message\n\"format\" for message format\n\"status\" to view complaint status\n\"cancel\" to cancel complaint";
 					sendSMS( messageUnit.msgNumber, studentMessage );
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.contentEquals("format") ) {
 					studentMessage = "Message Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 					sendSMS( messageUnit.msgNumber, studentMessage );
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.contentEquals("command") || msgTemp.contentEquals("commands") ) {
@@ -172,6 +188,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							else {
 								sendSplitSMS(messageUnit.msgNumber, memberCommandMsg);
 							}
+							databaseDisconnect();
 							return;
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
@@ -180,6 +197,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------3");
 					}
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.contentEquals("status") ) {
@@ -202,6 +220,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 								}
 								
 								sendSMS( messageUnit.msgNumber, studentMessage );
+								databaseDisconnect();
 								return;
 							}
 						}
@@ -212,6 +231,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------4");
 					}
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.contentEquals("cancel") || msgTemp.contentEquals("yes") || msgTemp.contentEquals("no") ) {
@@ -268,6 +288,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							else {
 								studentMessage = "Your Complaint is Pending\nYou cannot reply \"yes\" or \"no\" to it right now\n\n\nNETRONiX";
 								sendSMS( messageUnit.msgNumber, studentMessage );
+								databaseDisconnect();
 								return;
 							}
 							studentMessage = String.format( "Complaint #%d\n%s\n\nHostel %d Room %s\nComments: %s\nTimestamp: %s\n\n\nNETRONiX", complaint_id, studentText, hostel, roomString, comments, complaintTime );
@@ -304,6 +325,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------5");
 					}
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.startsWith("view") ) {
@@ -356,6 +378,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------6");
 					}
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.startsWith("done") ) {
@@ -406,6 +429,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------7");
 					}
+					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.startsWith("admin") ) {
@@ -621,6 +645,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						e.printStackTrace();
 						System.out.println("ERROR-------8");
 					}
+					databaseDisconnect();
 					return;
 				}
 				
@@ -743,12 +768,14 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						if ( resultSet.next() ) {
 							studentMessage = "You already have an Ongoing Complaint\n\nMultiple Ongoing Complaints are not allowed\n\nFor more info reply with \"help\"\n\n\nNETRONiX";
 							sendSMS( messageUnit.msgNumber, studentMessage );
+							databaseDisconnect();
 							return;
 						}
 					}
 					catch (SQLException e1) {
 						e1.printStackTrace();
 						System.out.println("ERROR-------9");
+						databaseDisconnect();
 						return;
 					}
 					
@@ -788,6 +815,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					catch (SQLException e) {
 						e.printStackTrace();
 						System.out.println("ERROR-------10");
+						databaseDisconnect();
 						return;
 					}
 					
@@ -811,9 +839,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					sendSMS( messageUnit.msgNumber, studentMessage );
 				}
 				
-				// Closing Connection to Database
-				database.disconnect();
-				statement = null;
+				databaseDisconnect();
 			}
 	    }
 	}
