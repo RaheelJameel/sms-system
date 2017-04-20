@@ -857,9 +857,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
 		gsmCom.sendSMS( sendNumber, sendMsg );
 		try {
-			while ( transferQueue.poll(10,TimeUnit.SECONDS) == null ) {
+			while ( transferQueue.poll(45,TimeUnit.SECONDS) == null ) {
 				gsmCom.sendChar((char)26);
-				if ( transferQueue.poll(5,TimeUnit.SECONDS) != null ) {
+				if ( transferQueue.poll(15,TimeUnit.SECONDS) != null ) {
 					break;
 				}
 				System.out.println("SMS Failed - Resending");
