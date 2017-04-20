@@ -41,10 +41,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		database = new MySQLDatabase(host,port,dbName,username,password);
 	}
 	
-	public void close() {
-		database.disconnect();
-	}
-	
 	public void enableDevHead(String devHeadPhoneNumber) {
 		isDevHead = true;
 		this.devHeadPhoneNumber = devHeadPhoneNumber;
