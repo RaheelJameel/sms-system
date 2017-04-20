@@ -855,14 +855,16 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	}
 	
 	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
+		int count = 1;
 		transferQueue.clear();
 		gsmCom.sendSMS( sendNumber, sendMsg );
 		try {
-			while ( transferQueue.poll(45,TimeUnit.SECONDS) == null ) {
+			while ( transferQueue.poll(45,TimeUnit.SECONDS) == null && count<4 ) {
 				gsmCom.sendChar((char)26);
 				if ( transferQueue.poll(15,TimeUnit.SECONDS) != null ) {
 					break;
 				}
+				count++;
 				System.out.println("SMS Failed - Resending");
 				transferQueue.clear();
 				gsmCom.sendSMS( sendNumber, sendMsg );
@@ -871,7 +873,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			e.printStackTrace();
 			
 		}
-		System.out.println("SMS Sending Successful");
+		if (count<4)
+			System.out.println("SMS Sending Successful");
+		else
+			System.out.println("SMS Failed After 4 tries");
 	}
 	
 	// Code from Stackoverflow user icza
