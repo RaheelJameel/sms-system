@@ -856,47 +856,17 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
 		int count = 1;
-		boolean failed = false, error = false;
-		//boolean 
+		boolean failed = true, error = false;
 		Integer testInteger = null;
 		
-		transferQueue.clear();
-		gsmCom.sendSMS( sendNumber, sendMsg );
 		try {
-			
-			testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
-			if ( testInteger == null) {
-				System.out.println("SMS timed out");
-				failed = true;
-			}
-			else if ( testInteger ==  -1) {
-				System.out.println("SMS got ERROR");
-				failed = true;
-				error = true;
-			}
-			
-			while ( failed == true && count<4 ) {
+			while ( failed == true && count<5 ) {
 				failed = false;
+				error = false;
 				
-				if (error) {
-					error = false;
-					gsmCom.sendChar((char)26);
-					gsmCom.sendChar((char)26);
-					
-					testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
-					if ( testInteger != null) {
-						if ( testInteger !=  -1) {
-							break;
-						}
-						System.out.println("SMS got ERROR");
-					}
-					else {
-						System.out.println("SMS timed out");
-					}
-				}
+				if (count!=1)
+					System.out.println("SMS Failed - Resending");
 				
-				count++;
-				System.out.println("SMS Failed - Resending");
 				transferQueue.clear();
 				gsmCom.sendSMS( sendNumber, sendMsg );
 				
@@ -908,7 +878,27 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				else if ( testInteger ==  -1) {
 					System.out.println("SMS got ERROR");
 					failed = true;
+					error = true;
 				}
+				
+				if (!error) {
+					transferQueue.clear();
+					gsmCom.sendChar((char)26);
+					gsmCom.sendChar((char)26);
+					
+					testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
+					if ( testInteger != null) {
+						if ( testInteger !=  -1) {
+							break;
+						}
+						System.out.println("SMS got ERROR");
+						error = true;
+					}
+					else {
+						System.out.println("SMS timed out");
+					}
+				}
+				count++;
 			}
 			
 		}
@@ -916,8 +906,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			e.printStackTrace();
 		}
 		
-		if (count<4)
-			System.out.println("SMS Sending Successful");
+		if (count<5)
+			System.out.println(String.format("SMS Sending Successful After %d tries",count));
 		else
 			System.out.println("SMS Failed After 4 tries");
 	}
