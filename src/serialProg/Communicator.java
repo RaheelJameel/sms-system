@@ -599,6 +599,10 @@ public class Communicator implements SerialPortEventListener {
                 	if ( logText.contains("+CMGS:") ) {
                 		transferQueue.offer(1);
                 	}
+                	else if ( logText.contains("ERROR") ) {
+                		System.out.println("GOT ERROR - Informing");
+                		transferQueue.offer(-1);
+                	}
                 	
                 	
                 	int i=0;
@@ -669,6 +673,10 @@ public class Communicator implements SerialPortEventListener {
                 }
                 else if ( logText.contains("+CMGS:") ) {
             		transferQueue.offer(1);
+            	}
+            	else if ( logText.contains("ERROR") ) {
+            		System.out.println("GOT ERROR - Informing");
+            		transferQueue.offer(-1);
             	}
                 
                 

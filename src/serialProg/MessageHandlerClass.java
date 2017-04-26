@@ -856,23 +856,60 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
 		int count = 1;
+		boolean error = false;
+		Integer testInteger = null;
+		
 		transferQueue.clear();
 		gsmCom.sendSMS( sendNumber, sendMsg );
 		try {
-			while ( transferQueue.poll(45,TimeUnit.SECONDS) == null && count<4 ) {
+			
+			testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
+			if ( testInteger == null) {
+				System.out.println("SMS timed out");
+				error = true;
+			}
+			else if ( testInteger ==  -1) {
+				System.out.println("SMS got ERROR");
+				error = true;
+			}
+			
+			while ( error == true && count<4 ) {
+				error = false;
+				
 				gsmCom.sendChar((char)26);
-				if ( transferQueue.poll(15,TimeUnit.SECONDS) != null ) {
-					break;
+				
+				testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
+				if ( testInteger != null) {
+					if ( testInteger !=  -1) {
+						break;
+					}
+					System.out.println("SMS got ERROR");
 				}
+				else {
+					System.out.println("SMS timed out");
+				}
+				
 				count++;
 				System.out.println("SMS Failed - Resending");
 				transferQueue.clear();
 				gsmCom.sendSMS( sendNumber, sendMsg );
+				
+				testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
+				if ( testInteger == null) {
+					System.out.println("SMS timed out");
+					error = true;
+				}
+				else if ( testInteger ==  -1) {
+					System.out.println("SMS got ERROR");
+					error = true;
+				}
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
 			
 		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		if (count<4)
 			System.out.println("SMS Sending Successful");
 		else
