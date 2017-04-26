@@ -14,6 +14,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private BlockingQueue<Integer> transferQueue;
 	private String currentTime;
 	
+	// Var to count total number of Sent SMS
+	int sentSMSCount;
+	
 	// Database Vars
 	private MySQLDatabase database;
 	private Statement statement;
@@ -39,6 +42,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		this.transferQueue = transferQueue;
 		
 		database = new MySQLDatabase(host,port,dbName,username,password);
+		
+		sentSMSCount = 0;
 	}
 	
 	public void enableDevHead(String devHeadPhoneNumber) {
@@ -909,10 +914,14 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			e.printStackTrace();
 		}
 		
-		if (count<5)
+		if (count<5) {
+			sentSMSCount++;
 			System.out.println(String.format("SMS Sending Successful After %d tries",count));
-		else
+			System.out.println(String.format("Total %d SMS Sent",sentSMSCount));
+		}
+		else {
 			System.out.println("SMS Failed After 4 tries");
+		}
 	}
 	
 	// Code from Stackoverflow user icza
