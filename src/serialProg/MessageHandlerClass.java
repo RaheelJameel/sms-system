@@ -880,6 +880,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					failed = true;
 					error = true;
 				}
+				else {
+					break;
+				}
 				
 				if (!error) {
 					transferQueue.clear();
