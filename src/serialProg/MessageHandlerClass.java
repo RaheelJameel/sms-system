@@ -856,7 +856,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private synchronized void sendConfirmSMS(String sendNumber, String sendMsg) {
 		int count = 1;
-		boolean error = false;
+		boolean failed = false, error = false;
+		//boolean 
 		Integer testInteger = null;
 		
 		transferQueue.clear();
@@ -866,27 +867,31 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
 			if ( testInteger == null) {
 				System.out.println("SMS timed out");
-				error = true;
+				failed = true;
 			}
 			else if ( testInteger ==  -1) {
 				System.out.println("SMS got ERROR");
+				failed = true;
 				error = true;
 			}
 			
-			while ( error == true && count<4 ) {
-				error = false;
+			while ( failed == true && count<4 ) {
+				failed = false;
 				
-				gsmCom.sendChar((char)26);
-				
-				testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
-				if ( testInteger != null) {
-					if ( testInteger !=  -1) {
-						break;
+				if (error) {
+					error = false;
+					gsmCom.sendChar((char)26);
+					
+					testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
+					if ( testInteger != null) {
+						if ( testInteger !=  -1) {
+							break;
+						}
+						System.out.println("SMS got ERROR");
 					}
-					System.out.println("SMS got ERROR");
-				}
-				else {
-					System.out.println("SMS timed out");
+					else {
+						System.out.println("SMS timed out");
+					}
 				}
 				
 				count++;
@@ -897,11 +902,11 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
 				if ( testInteger == null) {
 					System.out.println("SMS timed out");
-					error = true;
+					failed = true;
 				}
 				else if ( testInteger ==  -1) {
 					System.out.println("SMS got ERROR");
-					error = true;
+					failed = true;
 				}
 			}
 			
