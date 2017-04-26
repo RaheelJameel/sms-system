@@ -881,6 +881,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				if (error) {
 					error = false;
 					gsmCom.sendChar((char)26);
+					gsmCom.sendChar((char)26);
 					
 					testInteger = transferQueue.poll(45,TimeUnit.SECONDS);
 					if ( testInteger != null) {
