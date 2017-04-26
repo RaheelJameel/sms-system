@@ -1043,6 +1043,7 @@ public class Communicator implements SerialPortEventListener {
     
     public void sendSMS(String phoneNumber1, String msg1)
     {
+    	System.out.println(Thread.currentThread().getName() + " called sendSMS - Now waiting 20 sec");
 		try {
 			Thread.sleep(20000);
 		}
@@ -1055,7 +1056,6 @@ public class Communicator implements SerialPortEventListener {
     
     private synchronized void sendSMSCommand(String phoneNumber1, String msg1)
     {
-    	System.out.println(Thread.currentThread().getName() + " called sendSMS");
     	//AT+CMGF=1
     	//AT+CMGS=\"+YYxxxxxxxxxx\"\r
     	++tryCount;
