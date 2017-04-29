@@ -100,7 +100,7 @@ public class Communicator implements SerialPortEventListener {
 			// Wait 15 seconds before sending command
 			try
 	    	{
-				Thread.sleep(15000);
+				Thread.sleep(10000);
 			}
 	    	catch (InterruptedException e1)
 	    	{
