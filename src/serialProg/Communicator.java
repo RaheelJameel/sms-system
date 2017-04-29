@@ -1043,9 +1043,9 @@ public class Communicator implements SerialPortEventListener {
     
     public void sendSMS(String phoneNumber1, String msg1)
     {
-    	System.out.println(Thread.currentThread().getName() + " called sendSMS - Now waiting 20 sec");
+    	System.out.println(Thread.currentThread().getName() + " called sendSMS - Now waiting 10 sec");
 		try {
-			Thread.sleep(20000);
+			Thread.sleep(10000);
 		}
 		catch (InterruptedException e) {
 			e.printStackTrace();
