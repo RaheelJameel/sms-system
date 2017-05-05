@@ -830,12 +830,18 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private synchronized void sendSMS(String sendNumber, String sendMsg) {
 		try {
 			while (sendMsg.length()>160) {
-				String tempMessage = sendMsg.substring(0, 157) + "...";
+				int tempIndex = sendMsg.lastIndexOf('\n', 157);
+				String tempMessage = sendMsg.substring( 0, tempIndex ) + "...";
+				if (tempMessage.length()>160) {
+					tempMessage = sendMsg.substring(0, 157) + "...";
+					sendMsg = "..."+sendMsg.substring(157);
+				}
+				else {
+					sendMsg = "..."+sendMsg.substring(tempIndex);
+				}
 				sendConfirmSMS( sendNumber, tempMessage );
 				currentTime = getCurrentMySQLTime();
 				statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,tempMessage,currentTime) );
-				
-				sendMsg = "..."+sendMsg.substring(157);
 			}
 			sendConfirmSMS( sendNumber, sendMsg );
 			currentTime = getCurrentMySQLTime();
