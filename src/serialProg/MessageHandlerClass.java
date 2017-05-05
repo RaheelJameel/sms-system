@@ -831,7 +831,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		try {
 			while (sendMsg.length()>160) {
 				int tempIndex = sendMsg.lastIndexOf('\n', 157);
-				String tempMessage = sendMsg.substring( 0, tempIndex ) + "...";
+				String tempMessage = sendMsg.substring( 0, tempIndex ) + "\n...";
 				if (tempMessage.length()>160) {
 					tempMessage = sendMsg.substring(0, 157) + "...";
 					sendMsg = "..."+sendMsg.substring(157);
