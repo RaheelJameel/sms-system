@@ -300,7 +300,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							studentMessage = "You have no Ongoing Complaint to cancel\n\n\nNETRONiX";
 						}
 						else {
-							studentMessage = "You have no Ongoing Complaint\n\n\nNETRONiX";
+							studentMessage = "You have no Ongoing Complaint to reply Yes/No to\n\n\nNETRONiX";
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
 					}
