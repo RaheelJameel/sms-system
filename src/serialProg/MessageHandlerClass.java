@@ -293,10 +293,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							hostelHeadMessage = String.format( "NETRONiX Complaint #%d\n%s\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, netronixText, hostel, roomString, messageUnit.msgNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 							
 							sendSMS( memberNumber, memberMessage );
-							
-							if (isCompleted) {
-								sendSMS( memberNumber, creditsMsg );
-							}
 						
 							resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 							if (resultSet.next()==false) {
@@ -321,6 +317,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							studentMessage = "You have no Ongoing Complaint to reply Yes/No to\n\n\nNETRONiX";
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
+						if (isCompleted == true) {
+							sendSMS( messageUnit.msgNumber, creditsMsg );
+							isCompleted = false;
+						}
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
