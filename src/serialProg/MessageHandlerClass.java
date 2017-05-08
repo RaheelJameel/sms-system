@@ -30,6 +30,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private final String formatMsg = "Message Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 	
+	private final String creditsMsg = "This Complaint System was created by:\n\nScarecrow - Batch 24\n(Raheel Jameel)\n\nDuring Spring 2017\nIt is written in Java\n\n\nNETRONiX";
+	
 	private final String studentIncorrectMsg = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 	
 	private final String memberIncorrectMsg = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
@@ -165,6 +167,12 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				else if ( msgTemp.contentEquals("format") ) {
 					studentMessage = formatMsg;
+					sendSMS( messageUnit.msgNumber, studentMessage );
+					databaseDisconnect();
+					return;
+				}
+				else if ( msgTemp.contentEquals("credit") || msgTemp.contentEquals("credits") ) {
+					studentMessage = creditsMsg;
 					sendSMS( messageUnit.msgNumber, studentMessage );
 					databaseDisconnect();
 					return;
