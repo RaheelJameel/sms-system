@@ -26,6 +26,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private String devHeadPhoneNumber;
 	
 	// Information Messages
+	private final String infoMsg = "NETRONiX Complaint System\n\nReply\n\"info\" or \"help\" to see this message\n\"format\" for message format\n\"status\" to view complaint status\n\"cancel\" to cancel complaint";
+	
+	private final String formatMsg = "Message Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+	
 	private final String studentIncorrectMsg = "ERROR Incorrect Format\n\nMessage Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
 	
 	private final String memberIncorrectMsg = "Incorrect Command\n\nReply with \"commands\" to view list of commands available to you\n\n\nNETRONiX";
@@ -154,13 +158,13 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				
 				
 				if ( msgTemp.contentEquals("help") || msgTemp.contentEquals("info") || msgTemp.contentEquals("information") )  {
-					studentMessage = "NETRONiX Complaint System\n\nReply\n\"info\" or \"help\" to see this message\n\"format\" for message format\n\"status\" to view complaint status\n\"cancel\" to cancel complaint";
+					studentMessage = infoMsg;
 					sendSMS( messageUnit.msgNumber, studentMessage );
 					databaseDisconnect();
 					return;
 				}
 				else if ( msgTemp.contentEquals("format") ) {
-					studentMessage = "Message Format:\nHostel # Room #\n\nExample:\nHostel 1 Room 1\nor\nHostel 11 Room A1\n\nFor more info reply with \"help\"\n\nNETRONiX";
+					studentMessage = formatMsg;
 					sendSMS( messageUnit.msgNumber, studentMessage );
 					databaseDisconnect();
 					return;
