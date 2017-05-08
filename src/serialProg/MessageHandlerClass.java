@@ -77,6 +77,12 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	
 	private void databaseDisconnect() {
 		// Closing Connection to Database
+		try {
+			statement.close();
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
 		database.disconnect();
 		statement = null;
 	}
