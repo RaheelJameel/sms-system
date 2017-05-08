@@ -230,6 +230,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					return;
 				}
 				else if ( msgTemp.contentEquals("cancel") || msgTemp.contentEquals("yes") || msgTemp.contentEquals("no") ) {
+					boolean isCompleted = false;
 					try {
 						resultSet = statement.executeQuery( String.format("SELECT complaint_id,hostel_number,room,comment,timestamp,member_reg_number,status FROM `complaint` NATURAL JOIN `sms_received` WHERE status<2 AND phone_number=\'%s\' ORDER BY status LIMIT 0,1;",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
@@ -272,6 +273,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 									complaint_status=2;
 									studentText = "Is Confirmed Complete by You";
 									netronixText = "Confirmed Complete by Complainant";
+									isCompleted = true;
 								}
 								else if ( msgTemp.contentEquals("no") ) {
 									pending--;
@@ -291,6 +293,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							hostelHeadMessage = String.format( "NETRONiX Complaint #%d\n%s\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, netronixText, hostel, roomString, messageUnit.msgNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 							
 							sendSMS( memberNumber, memberMessage );
+							
+							if (isCompleted) {
+								sendSMS( memberNumber, creditsMsg );
+							}
 						
 							resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 							if (resultSet.next()==false) {
