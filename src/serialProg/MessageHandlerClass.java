@@ -137,6 +137,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					resultSet = statement.executeQuery("SELECT LAST_INSERT_ID();");
 					resultSet.next();
 					sms_id = resultSet.getInt(1);
+					resultSet.close();
 				}
 				catch (SQLException e) {
 					e.printStackTrace();
@@ -188,6 +189,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						studentMessage = studentIncorrectMsg;
 						resultSet = statement.executeQuery( String.format("SELECT reg_number FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
+							resultSet.close();
 							sendSplitSMS(messageUnit.msgNumber, memberCommandMsg);
 							databaseDisconnect();
 							return;
@@ -211,6 +213,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							comments = resultSet.getString(4);
 							complaintTime = resultSet.getString(5);
 							complaint_status = resultSet.getInt(6);
+							resultSet.close();
 							
 							if (complaint_status<2) {
 								if (complaint_status==0) {
@@ -247,6 +250,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							complaintTime = resultSet.getString(5);
 							memberReg = resultSet.getInt(6);
 							complaint_status = resultSet.getInt(7);
+							resultSet.close();
 							
 							resultSet = statement.executeQuery( String.format("SELECT first_name,last_name,batch,phone_number,solved,assigned,pending FROM `member` WHERE reg_number=%d;",memberReg) );
 							resultSet.next();
@@ -257,6 +261,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							solved = resultSet.getInt(5);
 							assigned = resultSet.getInt(6);
 							pending = resultSet.getInt(7);
+							resultSet.close();
 							
 							String studentText = null;
 							String netronixText = null;
@@ -302,10 +307,12 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						
 							resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 							if (resultSet.next()==false) {
+								resultSet.close();
 								resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
 								resultSet.next();
 							}
 							hostelHeadNumber = resultSet.getString(1);
+							resultSet.close();
 						
 							sendSMS( hostelHeadNumber, hostelHeadMessage );
 							if (isDevHead) {
@@ -348,6 +355,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						resultSet = statement.executeQuery( String.format("SELECT reg_number FROM `member` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
 							memberReg = resultSet.getInt(1);
+							resultSet.close();
 							studentMessage = memberIncorrectMsg;
 							if ( complaint_id>0 || msgTemp2.contentEquals("all") ) {
 								if ( msgTemp2.contentEquals("all") ) {
@@ -358,6 +366,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										studentMessage = studentMessage + "\n\nID:" + resultSet.getInt(1) + "  H" + resultSet.getInt(2) + "R" + resultSet.getString(3) + "\nStatus:" + getStatusString(resultSet.getInt(4));
 										checkEmpty = false;
 									}
+									resultSet.close();
 									if (checkEmpty) {
 										studentMessage = "No Ongoing Complaints assigned to you\n\n\nNETRONiX";
 									}
@@ -371,6 +380,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 									    String tempPhoneNumber = resultSet.getString(4);
 									    comments = resultSet.getString(5);
 									    complaintTime = resultSet.getString(6);
+										resultSet.close();
 									    studentMessage = String.format( "NETRONiX Complaint #%d\nStatus: %s\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s", complaint_id, getStatusString( complaint_status ), hostel, roomString, tempPhoneNumber, comments, complaintTime );
 									}
 									else {
@@ -402,6 +412,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						if ( resultSet.next() ) {
 							memberReg = resultSet.getInt(1);
 							pending = resultSet.getInt(2);
+							resultSet.close();
 							studentMessage = memberIncorrectMsg;
 							if ( complaint_id>0 ) {
 								studentMessage = "Invalid Complaint Number\n\n\nNETRONiX";
@@ -413,6 +424,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 									String tempPhoneNumber = resultSet.getString(4);
 									comments = resultSet.getString(5);
 									complaintTime = resultSet.getString(6);
+									resultSet.close();
 									if (complaint_status==1){
 										studentMessage = String.format( "NETRONiX Complaint #%d\nIs Already In Waiting State\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s", complaint_id, hostel, roomString, tempPhoneNumber, comments, complaintTime );
 									}
@@ -445,6 +457,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						studentMessage = studentIncorrectMsg;
 						resultSet = statement.executeQuery( String.format("SELECT * FROM `member` NATURAL JOIN `hostel_head` WHERE phone_number=\'%s\';",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
+							resultSet.close();
 							studentMessage = memberIncorrectMsg;
 							if ( msgTemp2.startsWith("view") ) {
 								String msgTemp3 = msgTemp2.substring( msgTemp2.indexOf("view")+4 ).trim();
@@ -463,6 +476,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 											studentMessage = studentMessage + "\n\nID:" + resultSet.getInt(1) + "  H" + resultSet.getInt(2) + "R" + resultSet.getString(3) + "\nStatus:" + getStatusString(resultSet.getInt(4));
 											checkEmpty = false;
 										}
+										resultSet.close();
 										if (checkEmpty) {
 											studentMessage = "No Ongoing Complaints\n\n\nNETRONiX";
 										}
@@ -483,6 +497,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 												studentMessage = studentMessage + "\n\nID:" + resultSet.getInt(1) + "  R" + resultSet.getString(2) + "\nStatus:" + getStatusString(resultSet.getInt(3));
 												checkEmpty = false;
 											}
+											resultSet.close();
 											if (checkEmpty) {
 												studentMessage = String.format("No Ongoing H%d Complaints\n\n\nNETRONiX",hostel);
 											}
@@ -501,6 +516,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										    lastName = resultSet.getString(8);
 										    batch = resultSet.getInt(9);
 										    memberNumber = resultSet.getString(10);
+											resultSet.close();
 										    studentMessage = String.format( "NETRONiX Complaint #%d\nStatus: %s\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, getStatusString( complaint_status ), hostel, roomString, tempPhoneNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 										}
 										else {
@@ -532,6 +548,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										batch = resultSet.getInt(10);
 										memberNumber = resultSet.getString(11);
 										pending = resultSet.getInt(12);
+										resultSet.close();
 										if (complaint_status==1){
 											studentMessage = String.format( "Complaint #%d\nIs Already In Waiting State\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, hostel, roomString, tempPhoneNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 										}
@@ -579,6 +596,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										solved = resultSet.getInt(12);
 										assigned = resultSet.getInt(13);
 										pending = resultSet.getInt(14);
+										resultSet.close();
 										assigned--;
 										if (complaint_status==1){
 											pending--;
@@ -624,6 +642,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										solved = resultSet.getInt(12);
 										assigned = resultSet.getInt(13);
 										pending = resultSet.getInt(14);
+										resultSet.close();
 										solved++;
 										assigned--;
 										if (complaint_status==1){
@@ -773,6 +792,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					try {
 						resultSet = statement.executeQuery( String.format("SELECT * FROM `complaint` WHERE status<2 AND phone_number=%s;",messageUnit.msgNumber) );
 						if ( resultSet.next() ) {
+							resultSet.close();
 							studentMessage = "You already have an Ongoing Complaint\n\nMultiple Ongoing Complaints are not allowed\n\nFor more info reply with \"help\"\n\n\nNETRONiX";
 							sendSMS( messageUnit.msgNumber, studentMessage );
 							databaseDisconnect();
@@ -803,21 +823,25 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						batch = resultSet.getInt(4);
 						memberNumber = resultSet.getString(5);
 						assigned = resultSet.getInt(6);
+						resultSet.close();
 						
 						statement.executeUpdate( String.format("INSERT INTO `complaint` VALUES (NULL,%d,\'%s\',\'%s\',\'%s\',%d,%d,%d);",hostel,roomString,messageUnit.msgNumber,comments,memberReg,0,sms_id) );
 						resultSet = statement.executeQuery("SELECT LAST_INSERT_ID();");
 						resultSet.next();
 						complaint_id = resultSet.getInt(1);
+						resultSet.close();
 						
 						assigned++;
 						statement.executeUpdate( String.format("UPDATE `member` SET assigned=%d WHERE reg_number=%d",assigned,memberReg) );
 						
 						resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 						if (resultSet.next()==false) {
+							resultSet.close();
 							resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
 							resultSet.next();
 						}
 						hostelHeadNumber = resultSet.getString(1);
+						resultSet.close();
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
