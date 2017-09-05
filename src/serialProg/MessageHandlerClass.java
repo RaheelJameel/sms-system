@@ -815,7 +815,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					
 					try {
-						resultSet = statement.executeQuery("SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND (assigned - pending)=(SELECT min(assigned - pending) FROM `member`) ORDER BY rand();");
+						resultSet = statement.executeQuery("SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND (assigned - pending)=(SELECT min(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head)) ORDER BY rand();");
 						resultSet.next();
 						memberReg = resultSet.getInt(1);
 						firstName = resultSet.getString(2);
