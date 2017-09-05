@@ -15,7 +15,7 @@ public class SMSSystem {
 	public static void main(String[] args) throws FileNotFoundException, IOException, NoSuchPortException, PortInUseException, UnsupportedCommOperationException, ClassNotFoundException, SQLException {
 		
 		String selectedCOMPort, host, databaseName, username, password, devHeadNumber;
-		int port, isDevHead;
+		int port, isDevHead, creditMsgProbability;
 		String [] fileInput;
 		
 		BufferedReader inputParmsReader = new BufferedReader(new FileReader(new File("config.cfg")));
@@ -44,6 +44,9 @@ public class SMSSystem {
 		fileInput = inputParmsReader.readLine().split("~");
 		devHeadNumber = fileInput[1];
 		
+		fileInput = inputParmsReader.readLine().split("~");
+		creditMsgProbability = Integer.parseInt(fileInput[1]);
+		
 		inputParmsReader.close();
 		inputParmsReader = null;
 		
@@ -55,7 +58,7 @@ public class SMSSystem {
 		
 		BlockingQueue<Integer> transferQueue = new LinkedBlockingQueue<Integer>();
 		
-		MessageHandlerClass listener = new MessageHandlerClass( messageClass, transferQueue, host, port, databaseName, username, password );
+		MessageHandlerClass listener = new MessageHandlerClass( messageClass, transferQueue, host, port, databaseName, username, password, creditMsgProbability );
 		
 		if ( isDevHead==1 ) {
 			listener.enableDevHead( devHeadNumber );

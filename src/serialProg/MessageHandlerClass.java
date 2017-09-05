@@ -24,6 +24,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	// Developer Mode / Debugging Mode
 	private boolean isDevHead;
 	private String devHeadPhoneNumber;
+	private int creditMsgProbability;
 	
 	// Information Messages
 	private final String infoMsg = "NETRONiX Complaint System\n\nReply\n\"info\" or \"help\" to see this message\n\"format\" for message format\n\"status\" to view complaint status\n\"cancel\" to cancel complaint";
@@ -40,9 +41,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			"NETRONiX Commands:\n\n\"view all\"\nto view all complaints assigned to you\n\n\"view [compliant#]\"\nto view details of a complaint assigned to you\n...",
 			"...\n\"done [complaint#]\"\nto mark complaint as resolved"};
 
-	public MessageHandlerClass( MessageClass messageClass, BlockingQueue<Integer> transferQueue, String host, int port, String dbName, String username, String password ) throws ClassNotFoundException, SQLException {
+	public MessageHandlerClass( MessageClass messageClass, BlockingQueue<Integer> transferQueue, String host, int port, String dbName, String username, String password, int creditMsgProbability ) throws ClassNotFoundException, SQLException {
 		isDevHead = false;
 		devHeadPhoneNumber = null;
+		this.creditMsgProbability = creditMsgProbability;
 		
 		this.messageClass = messageClass;
 		this.transferQueue = transferQueue;
@@ -330,7 +332,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							studentMessage = "You have no Ongoing Complaint to reply Yes/No to\n\n\nNETRONiX";
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
-						if (isCompleted == true) {
+						int randomNum = (int)(Math.random() * creditMsgProbability + 1);
+						System.out.println("creditMsgProbability: " + creditMsgProbability + " randomNum: " + randomNum);
+						if (isCompleted == true && randomNum == 1) {
+							System.out.println("credit msg sent");
 							sendSMS( messageUnit.msgNumber, creditsMsg );
 							isCompleted = false;
 						}
