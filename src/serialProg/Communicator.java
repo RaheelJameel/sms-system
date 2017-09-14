@@ -636,7 +636,7 @@ public class Communicator implements SerialPortEventListener {
                     ++msgCounter;
                     --unRead;
                     
-                	if ( msgCounter > 49)
+                	if ( msgCounter > 47)
                 	{
                 		msgCounter = 0;
                 		sendDelayCommand( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII, 500);
