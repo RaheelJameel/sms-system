@@ -820,8 +820,45 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 					
 					try {
-						resultSet = statement.executeQuery("SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND (assigned - pending)=(SELECT min(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head)) ORDER BY rand();");
-						resultSet.next();
+						char gender = 'm';
+						int[] girlHostels = {7,80};
+						if ( getIntArrayIndex(girlHostels,hostel) > -1) {
+							gender = 'f';
+						}
+						// Query for the specific gender members who are not hostel heads
+						resultSet = statement.executeQuery(
+							String.format(
+								"SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND (assigned - pending)=(SELECT min(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND gender=\'%c\') AND gender=\'%c\' ORDER BY rand();",
+								gender,
+								gender
+							)
+						);
+						if ( resultSet.next() == false){
+							resultSet.close();
+							// Query for all specific gender members
+							resultSet = statement.executeQuery(
+								String.format(
+									"SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE (assigned - pending)=(SELECT min(assigned - pending) FROM `member` WHERE gender=\'%c\') AND gender=\'%c\' ORDER BY rand();",
+									gender,
+									gender
+								)
+							);
+							if ( resultSet.next() == false){
+								resultSet.close();
+								// Query for members who are not hostel heads
+								resultSet = statement.executeQuery(
+									"SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head) AND (assigned - pending)=(SELECT min(assigned - pending) FROM `member` WHERE reg_number NOT IN (SELECT reg_number FROM hostel_head)) ORDER BY rand();"
+								);
+								if ( resultSet.next() == false){
+									resultSet.close();
+									// Query for all members
+									resultSet = statement.executeQuery(
+										"SELECT reg_number,first_name,last_name,batch,phone_number,assigned,(assigned - pending) FROM `member` WHERE (assigned - pending)=(SELECT min(assigned - pending) FROM `member`) ORDER BY rand();"
+									);
+									resultSet.next();
+								}
+							}
+						}
 						memberReg = resultSet.getInt(1);
 						firstName = resultSet.getString(2);
 						lastName = resultSet.getString(3);
@@ -829,21 +866,27 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 						memberNumber = resultSet.getString(5);
 						assigned = resultSet.getInt(6);
 						resultSet.close();
-						
 						statement.executeUpdate( String.format("INSERT INTO `complaint` VALUES (NULL,%d,\'%s\',\'%s\',\'%s\',%d,%d,%d);",hostel,roomString,messageUnit.msgNumber,comments,memberReg,0,sms_id) );
 						resultSet = statement.executeQuery("SELECT LAST_INSERT_ID();");
 						resultSet.next();
 						complaint_id = resultSet.getInt(1);
 						resultSet.close();
-						
 						assigned++;
 						statement.executeUpdate( String.format("UPDATE `member` SET assigned=%d WHERE reg_number=%d",assigned,memberReg) );
-						
 						resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 						if (resultSet.next()==false) {
 							resultSet.close();
-							resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
-							resultSet.next();
+							resultSet = statement.executeQuery(
+								String.format(
+									"SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE gender=\'%c\' ORDER BY rand() limit 0,1;",
+									gender
+								)
+							);
+							if (resultSet.next()==false) {
+								resultSet.close();
+								resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
+								resultSet.next();
+							}
 						}
 						hostelHeadNumber = resultSet.getString(1);
 						resultSet.close();
@@ -1046,5 +1089,17 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		default:
 			return null;
 		}
+	}
+
+	public int getIntArrayIndex(int[] arr,int value) {
+        int k=-1;
+        for(int i=0;i<arr.length;i++){
+
+            if(arr[i]==value){
+                k=i;
+                break;
+            }
+        }
+        return k;
 	}
 }
