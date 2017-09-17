@@ -356,12 +356,15 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							studentMessage = "You have no Ongoing Complaint to reply Yes/No to\n\n\nNETRONiX";
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
-						int randomNum = (int)(Math.random() * creditMsgProbability + 1);
-						System.out.println("creditMsgProbability: " + creditMsgProbability + " randomNum: " + randomNum);
-						if (isCompleted == true && randomNum == 1) {
-							System.out.println("credit msg sent");
-							sendSMS( messageUnit.msgNumber, creditsMsg );
-							isCompleted = false;
+
+						if (isCompleted) {
+							int randomNum = (int)(Math.random() * creditMsgProbability + 1);
+							System.out.println("creditMsgProbability: " + creditMsgProbability + " randomNum: " + randomNum);
+							if (randomNum == creditMsgProbability) {
+								System.out.println("credit msg sent");
+								sendSMS( messageUnit.msgNumber, creditsMsg );
+								isCompleted = false;
+							}
 						}
 					}
 					catch (SQLException e) {
