@@ -3,6 +3,7 @@ package serialProg;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -306,17 +307,40 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 							hostelHeadMessage = String.format( "NETRONiX Complaint #%d\n%s\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, netronixText, hostel, roomString, messageUnit.msgNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 							
 							sendSMS( memberNumber, memberMessage );
-						
+
+							char gender = 'm';
+							int[] girlHostels = {7,80};
+							if ( getIntArrayIndex(girlHostels,hostel) > -1) {
+								gender = 'f';
+							}
+							
 							resultSet = statement.executeQuery( String.format("SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE hostel_id=%d;",hostel) );
 							if (resultSet.next()==false) {
 								resultSet.close();
-								resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
-								resultSet.next();
+								resultSet = statement.executeQuery(
+									String.format(
+										"SELECT phone_number FROM member NATURAL JOIN hostel_head WHERE gender=\'%c\' ORDER BY rand() limit 0,1;",
+										gender
+									)
+								);
+								if (resultSet.next()==false) {
+									resultSet.close();
+									resultSet = statement.executeQuery("SELECT phone_number FROM member NATURAL JOIN hostel_head ORDER BY rand() limit 0,1;");
+									resultSet.next();
+								}
 							}
-							hostelHeadNumber = resultSet.getString(1);
+							
+							// This loop send messages to all Heads of that Hostel
+							ArrayList<String> hostelHeadNumberList = new ArrayList<String>();
+							do {
+								hostelHeadNumberList.add(resultSet.getString(1));
+							} while (resultSet.next());
 							resultSet.close();
-						
-							sendSMS( hostelHeadNumber, hostelHeadMessage );
+
+							for(String phoneNumber:hostelHeadNumberList) {
+								sendSMS( phoneNumber, hostelHeadMessage );
+							}
+							
 							if (isDevHead) {
 								sendSMS( devHeadPhoneNumber, "DevHead\n"+hostelHeadMessage );
 							}
@@ -888,8 +912,18 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 								resultSet.next();
 							}
 						}
-						hostelHeadNumber = resultSet.getString(1);
+						hostelHeadMessage = String.format( "NETRONiX Complaint #%d\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, hostel, roomString, messageUnit.msgNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
+						
+						// This loop send messages to all Heads of that Hostel
+						ArrayList<String> hostelHeadNumberList = new ArrayList<String>();
+						do {
+							hostelHeadNumberList.add(resultSet.getString(1));
+						} while (resultSet.next());
 						resultSet.close();
+
+						for(String phoneNumber:hostelHeadNumberList) {
+							sendSMS( phoneNumber, hostelHeadMessage );
+						}
 					}
 					catch (SQLException e) {
 						e.printStackTrace();
@@ -900,7 +934,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					
 					studentMessage = String.format( "Complaint #%d Registered\n\nHostel %d Room %s\nComments: %s\nTimestamp: %s\n\n\nNETRONiX", complaint_id, hostel, roomString, comments, complaintTime );
 					memberMessage = String.format( "NETRONiX Complaint #%d\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s", complaint_id, hostel, roomString, messageUnit.msgNumber, comments, complaintTime );
-					hostelHeadMessage = String.format( "NETRONiX Complaint #%d\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s\n\nAssigned: %s %s B%d\nNumber: %s", complaint_id, hostel, roomString, messageUnit.msgNumber, comments, complaintTime, firstName, lastName, batch, memberNumber );
 					
 					
 					
@@ -908,7 +941,6 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					
 					sendSMS( memberNumber, memberMessage );
 					
-					sendSMS( hostelHeadNumber, hostelHeadMessage );
 					if (isDevHead) {
 						sendSMS( devHeadPhoneNumber, "DevHead\n"+hostelHeadMessage );
 					}
