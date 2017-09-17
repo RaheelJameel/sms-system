@@ -3,11 +3,14 @@ package serialProg;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public class MessageHandlerClass extends MessageHandlerAbstract {
 	
@@ -136,7 +139,13 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				
 				try {
 					currentTime = getCurrentMySQLTime();
-					statement.executeUpdate( String.format("INSERT INTO `sms_received` VALUES (NULL,\'%s\',\'%s\',\'%s\');",messageUnit.msgNumber,messageUnit.msgBody,currentTime) );
+					
+					PreparedStatement preparedStatement = database.prepareStatement("INSERT INTO `sms_received` VALUES (NULL, ?, ?, ?)");
+					preparedStatement.setString(1, messageUnit.msgNumber);
+					preparedStatement.setString(2, messageUnit.msgBody);
+					preparedStatement.setString(3, currentTime);
+					preparedStatement.executeUpdate();
+					
 					resultSet = statement.executeQuery("SELECT LAST_INSERT_ID();");
 					resultSet.next();
 					sms_id = resultSet.getInt(1);
@@ -802,7 +811,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 					}
 				}
 				
-				if ( (hostel>0 && hostel<13) && (room>0 && room<150) ) {
+				if ( ( (hostel>0 && hostel<13) || hostel == 80 ) && (room>0 && room<150) ) {
 					
 					// To read comments in complaint about problem
 

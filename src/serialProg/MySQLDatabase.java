@@ -42,6 +42,10 @@ public class MySQLDatabase {
 	public Statement getStatement() {
 		return statement;
 	}
+	
+	public PreparedStatement prepareStatement(String sql) throws SQLException {
+		return connection.prepareStatement(sql);
+	}
 
 
 	public boolean connect() throws ClassNotFoundException, SQLException {
