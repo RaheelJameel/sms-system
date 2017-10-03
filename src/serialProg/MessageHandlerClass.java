@@ -64,6 +64,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		sentSMSCount = 0;
 		
 		scheduleStatusSMS();
+		
+		sendStartupSMS();
 	}
 	
 	public void enableDevHead(String devHeadPhoneNumber) {
@@ -989,11 +991,15 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 				}
 				sendConfirmSMS( sendNumber, tempMessage );
 				currentTime = getCurrentMySQLTime();
-				statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,tempMessage,currentTime) );
+				if (statement != null) {
+					statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,tempMessage,currentTime) );
+				}
 			}
 			sendConfirmSMS( sendNumber, sendMsg );
 			currentTime = getCurrentMySQLTime();
-			statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,sendMsg,currentTime) );
+			if (statement != null) {
+				statement.executeUpdate( String.format("INSERT INTO `sms_sent` VALUES (NULL,\'%s\',\'%s\',\'%s\');",sendNumber,sendMsg,currentTime) );
+			}
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -1084,8 +1090,23 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private class StatusSMS implements Runnable {
 		public void run() {
 			System.out.println( Thread.currentThread().getName() +  " Sending StatusSMS to admin" );
-			sendSMS("+923223044669", "Complaint System Status\nOK\n" + getCurrentMySQLTime());
+			Thread nextThread = new Thread( new SendStatusSMS("+923223044669", "Status OK\nNETRONiX Complaint System\n" + getCurrentMySQLTime()) );
+			nextThread.start();
 		}
+		
+		private class SendStatusSMS implements Runnable {
+			String number;
+			String message;
+
+			SendStatusSMS(String number, String message) {
+				this.number = number;
+				this.message = message;
+			}
+
+			public void run() {
+				sendSMS(number, message);
+			}
+	    }
     }
 	
 	private void scheduleSMS(int hours, Runnable runnable) {
@@ -1099,6 +1120,9 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 
         Duration duration1 = Duration.between(zonedNow, zonedNext1);
         long initalDelay1 = duration1.getSeconds();
+        
+        System.out.println( Thread.currentThread().getName() +  " 			Scheduling with " + hours + " hours\n									"
+        		+ "initalDelay1:" + initalDelay1 + " Next:" +24*60*60);
 
         ScheduledExecutorService scheduler1 = Executors.newScheduledThreadPool(1);            
         scheduler1.scheduleAtFixedRate(runnable, initalDelay1, 24*60*60, TimeUnit.SECONDS);
@@ -1113,6 +1137,30 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		scheduleSMS(18, statusSMS);
 		scheduleSMS(21, statusSMS);
 	}
+	
+	
+	private void sendStartupSMS() {
+		Thread nextThread = new Thread( new StartupSMS("+923223044669") );
+		nextThread.start();
+	}
+	
+	private class StartupSMS implements Runnable {
+		String number;
+
+		StartupSMS(String number) {
+			this.number = number;
+		}
+
+		public void run() {
+			try {
+				Thread.sleep(20000);
+			} catch (InterruptedException e) {
+				System.out.println("Class StartupSMS got exception");
+				e.printStackTrace();
+			}
+			sendSMS(number, "Started\nNETRONiX Complaint System\n" + getCurrentMySQLTime());
+		}
+    }
 	
 	
 	
