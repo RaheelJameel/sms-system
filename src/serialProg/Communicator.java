@@ -5,6 +5,8 @@ import gnu.io.*;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TooManyListenersException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -170,9 +172,11 @@ public class Communicator implements SerialPortEventListener {
             	
             	// Set the GSM module in text mode
             	writeData( "AT+CMGF=1", 13);
+            	
+            	scheduleDeleteSMS(6);
             }
         }
-	
+        
 	}
     
     
@@ -1133,6 +1137,36 @@ public class Communicator implements SerialPortEventListener {
         */
     }
     
+    private void scheduleDeleteSMS(int hours) {
+    	long initalDelay = hours*60*60*1000;
+		System.out.println( Thread.currentThread().getName() +  " 			Delete Scheduling with " + hours + " hours");
+        Timer time = new Timer();
+		time.schedule(new DeleteSMS(), initalDelay, initalDelay);
+	}
     
+    private class DeleteSMS extends TimerTask {
+		public void run() {
+			msgCounter = 0;
+			unRead = 0;
+    		sendDelayCommand( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII, 500);
+    		sendDelayCommand( " AT+CMGDA=\"DEL ALL\" ", CR_ASCII, 1000);
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				System.out.println("Class DeleteSMS got exception");
+				e.printStackTrace();
+			}
+			sendSMS( "+923223044669", "SMS Cache Deleted\nNETRONiX Complaint System\n" + getCurrentMySQLTime() );
+		}
+    }
+    
+    public static String getCurrentMySQLTime() {
+		java.util.Date dt = new java.util.Date();
+
+		java.text.SimpleDateFormat sdf = 
+		     new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		return sdf.format(dt);
+	}
 	
 }
