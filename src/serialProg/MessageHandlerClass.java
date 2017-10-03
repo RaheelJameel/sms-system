@@ -3,10 +3,16 @@ package serialProg;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +62,8 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		database = new MySQLDatabase(host,port,dbName,username,password);
 		
 		sentSMSCount = 0;
+		
+		scheduleStatusSMS();
 	}
 	
 	public void enableDevHead(String devHeadPhoneNumber) {
@@ -1069,6 +1077,44 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			System.out.println("SMS Failed After 4 tries");
 		}
 	}
+	
+	
+	
+
+	private class StatusSMS implements Runnable {
+		public void run() {
+			System.out.println( Thread.currentThread().getName() +  " Sending StatusSMS to admin" );
+			sendSMS("+923223044669", "Complaint System Status\nOK\n" + getCurrentMySQLTime());
+		}
+    }
+	
+	private void scheduleSMS(int hours, Runnable runnable) {
+		LocalDateTime localNow = LocalDateTime.now();
+        ZoneId currentZone = ZoneId.of("Asia/Karachi");
+        ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
+        
+        ZonedDateTime zonedNext1 = zonedNow.withHour(hours).withMinute(0).withSecond(0);
+        if(zonedNow.compareTo(zonedNext1) > 0)
+        	zonedNext1 = zonedNext1.plusDays(1);
+
+        Duration duration1 = Duration.between(zonedNow, zonedNext1);
+        long initalDelay1 = duration1.getSeconds();
+
+        ScheduledExecutorService scheduler1 = Executors.newScheduledThreadPool(1);            
+        scheduler1.scheduleAtFixedRate(runnable, initalDelay1, 24*60*60, TimeUnit.SECONDS);
+	}
+	
+	private void scheduleStatusSMS() {
+		StatusSMS statusSMS = new StatusSMS();
+		scheduleSMS(0, statusSMS);
+		scheduleSMS(6, statusSMS);
+		scheduleSMS(12, statusSMS);
+		scheduleSMS(15, statusSMS);
+		scheduleSMS(18, statusSMS);
+		scheduleSMS(21, statusSMS);
+	}
+	
+	
 	
 	// Code from Stackoverflow user icza
 	// http://stackoverflow.com/posts/25379180/revisions
