@@ -27,6 +27,18 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	// Var to count total number of Sent SMS
 	int sentSMSCount;
 	
+	// Var to count total number of recived SMS
+	int recievedSMSCount;
+	
+	// Var to count total number of failed SMS
+	int failedSentSMS;
+	
+	// Var to count admin cancel commands
+	int adminCancelCount;
+	
+	// Var to count admin complete commands
+	int adminCompleteCount;
+	
 	// Database Vars
 	private MySQLDatabase database;
 	private Statement statement;
@@ -62,6 +74,10 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 		database = new MySQLDatabase(host,port,dbName,username,password);
 		
 		sentSMSCount = 0;
+		recievedSMSCount = 0;
+		failedSentSMS = 0;
+		adminCancelCount = 0;
+		adminCompleteCount = 0;
 		
 		scheduleStatusSMS();
 		
@@ -141,6 +157,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			MessageUnit messageUnit = messageClass.getData();
 			
 			if ( messageUnit!=null ){
+				recievedSMSCount++;
 				System.out.println(Thread.currentThread().getName() + " Number: " + messageUnit.msgNumber);
 				System.out.println(Thread.currentThread().getName() + " Message: " + messageUnit.msgBody);
 				
@@ -662,6 +679,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										
 										memberMessage = String.format( "NETRONiX Complaint #%d\nStatus changed to Canceled\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s", complaint_id, hostel, roomString, tempPhoneNumber, comments, complaintTime );
 										sendSMS( memberNumber, memberMessage );
+										adminCancelCount++;
 									}
 									else {
 										studentMessage = "Invalid Complaint Number\n\n\nNETRONiX";
@@ -709,11 +727,15 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 										
 										memberMessage = String.format( "NETRONiX Complaint #%d\nStatus changed to Completed\n\nHostel %d Room %s\nNumber: %s\nComments: %s\nTimestamp: %s", complaint_id, hostel, roomString, tempPhoneNumber, comments, complaintTime );
 										sendSMS( memberNumber, memberMessage );
+										adminCompleteCount++;
 									}
 									else {
 										studentMessage = "Invalid Complaint Number\n\n\nNETRONiX";
 									}
 								}
+							}
+							else if ( msgTemp2.startsWith("status") ) {
+								studentMessage = getStatusSMS();
 							}
 						}
 						sendSMS( messageUnit.msgNumber, studentMessage );
@@ -1080,8 +1102,21 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 			System.out.println(String.format("Total %d SMS Sent",sentSMSCount));
 		}
 		else {
+			failedSentSMS++;
 			System.out.println("SMS Failed After 4 tries");
 		}
+	}
+	
+	
+	
+	private String getStatusSMS() {
+		return "Status OK"
+				+ "\n\nRecieved: " + recievedSMSCount
+				+ "\nSent: " + sentSMSCount
+				+ "\nFailed: " + failedSentSMS
+				+ "\n\nAdmin Cancel: " + adminCancelCount
+				+ "\nAdmin Complete: " + adminCompleteCount
+				+ "\n\nNETRONiX Complaint System\n" + getCurrentMySQLTime();
 	}
 	
 	
@@ -1090,7 +1125,7 @@ public class MessageHandlerClass extends MessageHandlerAbstract {
 	private class StatusSMS implements Runnable {
 		public void run() {
 			System.out.println( Thread.currentThread().getName() +  " Sending StatusSMS to admin" );
-			Thread nextThread = new Thread( new SendStatusSMS("+923223044669", "Status OK\nNETRONiX Complaint System\n" + getCurrentMySQLTime()) );
+			Thread nextThread = new Thread( new SendStatusSMS("+923223044669", getStatusSMS()) );
 			nextThread.start();
 		}
 		
